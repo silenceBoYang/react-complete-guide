@@ -14,15 +14,14 @@ const authPersistConfig = {
   whitelist: ["auth", "profile", "basket", "checkout"],
 };
 
-const configureStore = () => {
+const configureStores = () => {
   const store = createStore(
     persistCombineReducers(authPersistConfig, rootReducer),
     composeEnhancer(applyMiddleware(sagaMiddleware))
   );
   const persistor = persistStore(store);
-  sagaMiddleware.run(rootSaga);
+  // sagaMiddleware.run(rootSaga);
   return { store, persistor };
 };
 
-export default configureStore();
-export const { store, persistor } = configureStore();
+export default configureStores;

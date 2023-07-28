@@ -1,15 +1,16 @@
 import Preloader from "./components/common/Preloader";
 import React from "react";
 import { render } from "react-dom";
-import { onAuthStateFail, onAuthStateSuccess } from "./redux/authActions";
 import {
-  store as testStore,
-  persistor as testPersistor,
-} from "./redux/store/store";
+  onAuthStateFail,
+  onAuthStateSuccess,
+} from "./redux/actions/authActions";
+import configureStores from "./redux/store/store";
 // import "@/styles/style.scss";
 import WebFont from "webfontloader";
 import App from "./App";
-import firebaseInstance from "./services/firebase";
+import firebase from "./services/firebase";
+import ReactDOM from "react-dom/client";
 
 WebFont.load({
   google: {
@@ -17,20 +18,29 @@ WebFont.load({
   },
 });
 
-const { store, persistor } = { testStore, testPersistor };
-const root = document.getElementById("app");
-
+const { store, persistor } = configureStores();
+const root = ReactDOM.createRoot(document.getElementById("root"));
 // Render the preloader on initial load
-render(<Preloader />, root);
+root.render(
+  <React.StrictMode>
+    (<Preloader />)
+  </React.StrictMode>
+);
+// render(<Preloader />, root);
 
-firebaseInstance.auth.onAuthStateChanged((user) => {
+firebase.auth.onAuthStateChanged((user) => {
   if (user) {
     store.dispatch(onAuthStateSuccess(user));
   } else {
     store.dispatch(onAuthStateFail("Failed to authenticate"));
   }
   // then render the app after checking the auth state
-  render(<App store={store} persistor={persistor} />, root);
+  root.render(
+    <React.StrictMode>
+      <App store={store} persistor={persistor} />
+    </React.StrictMode>
+  );
+  // render(<App store={store} persistor={persistor} />, root);
 });
 
 if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
